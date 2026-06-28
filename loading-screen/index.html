@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loading Screen - AFAQ Store</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: #000;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Cairo', sans-serif;
+    color: #fff;
+    position: relative;
+  }
+
+  /* Radial green glow in center */
+  .bg-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 700px;
+    height: 500px;
+    background: radial-gradient(ellipse at center, rgba(0, 255, 160, 0.18) 0%, rgba(0, 200, 100, 0.08) 40%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* FPS counter top-left */
+  .fps {
+    position: absolute;
+    top: 10px;
+    left: 14px;
+    font-size: 13px;
+    color: #aaa;
+    font-family: monospace;
+  }
+
+  /* Loading resources top-left below fps */
+  .loading-resources {
+    position: absolute;
+    top: 30px;
+    left: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #ccc;
+    font-family: 'Cairo', sans-serif;
+  }
+
+  .loading-dot {
+    width: 9px;
+    height: 9px;
+    background: #00ff99;
+    border-radius: 50%;
+    animation: pulse-dot 1.2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Top right: store name + avatar */
+  .top-right {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-direction: row-reverse;
+  }
+
+  .store-name {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #fff;
+    text-shadow: 0 0 18px rgba(0,255,150,0.4);
+  }
+
+  .welcome-label {
+    font-size: 12px;
+    color: #aaa;
+    text-align: right;
+  }
+
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a7a4a, #00cc77);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #fff;
+    border: 2px solid #00ff99;
+    box-shadow: 0 0 12px rgba(0,255,150,0.5);
+    overflow: hidden;
+  }
+
+  .avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Center: notification card */
+  .card-wrapper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -52%);
+    width: 660px;
+  }
+
+  /* Hexagon-edged card shape using clip-path */
+  .notification-card {
+    background: linear-gradient(135deg, #7fffd4 0%, #5cffc0 30%, #3dedb0 60%, #00e09a 100%);
+    clip-path: polygon(28px 0%, calc(100% - 28px) 0%, 100% 28px, 100% calc(100% - 28px), calc(100% - 28px) 100%, 28px 100%, 0% calc(100% - 28px), 0% 28px);
+    padding: 28px 36px 34px 36px;
+    position: relative;
+    box-shadow:
+      0 0 60px rgba(0, 255, 160, 0.55),
+      0 0 120px rgba(0, 200, 120, 0.25),
+      inset 0 0 30px rgba(255,255,255,0.15);
+    animation: card-glow 2.5s ease-in-out infinite alternate;
+  }
+
+  @keyframes card-glow {
+    from {
+      box-shadow: 0 0 50px rgba(0,255,160,0.5), 0 0 100px rgba(0,200,120,0.2);
+    }
+    to {
+      box-shadow: 0 0 80px rgba(0,255,160,0.75), 0 0 150px rgba(0,220,130,0.35);
+    }
+  }
+
+  /* Username row */
+  .username-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a6a40, #00bb66);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    border: 2px solid rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+
+  .username {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a3a2a;
+    direction: ltr;
+  }
+
+  /* Main text */
+  .card-text {
+    font-size: 42px;
+    font-weight: 900;
+    color: #0a1a10;
+    text-align: right;
+    line-height: 1.2;
+    margin-bottom: 20px;
+  }
+
+  /* Action icons row */
+  .actions-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+
+  .action-icon {
+    width: 28px;
+    height: 28px;
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .action-icon:hover {
+    opacity: 1;
+  }
+
+  .action-icon svg {
+    width: 100%;
+    height: 100%;
+    stroke: #0a2a15;
+    fill: none;
+    stroke-width: 1.8;
+  }
+
+  .dots-icon {
+    font-size: 20px;
+    color: #0a2a15;
+    opacity: 0.6;
+    letter-spacing: 1px;
+    cursor: pointer;
+  }
+
+  /* Bottom left: RP rules reminder */
+  .rp-reminder {
+    position: absolute;
+    bottom: 12px;
+    left: 14px;
+    font-size: 12px;
+    color: #666;
+    direction: rtl;
+  }
+
+  /* Bottom center: game tip */
+  .tip-box {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 420px;
+    background: rgba(15, 25, 20, 0.92);
+    border-radius: 10px;
+    padding: 14px 20px;
+    text-align: right;
+    border: 1px solid rgba(0,255,120,0.1);
+  }
+
+  .tip-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #00ff99;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  .tip-label svg {
+    width: 14px;
+    height: 14px;
+    stroke: #00ff99;
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .tip-text {
+    font-size: 12px;
+    color: #bbb;
+    line-height: 1.5;
+  }
+
+  /* Bottom right: controls */
+  .controls-box {
+    position: absolute;
+    bottom: 10px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .volume-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .vol-label {
+    font-size: 12px;
+    color: #aaa;
+  }
+
+  .vol-slider {
+    width: 90px;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .vol-fill {
+    width: 100%;
+    height: 100%;
+    background: #00ff99;
+    border-radius: 2px;
+  }
+
+  .btn-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(0,255,150,0.15);
+    border: 1px solid rgba(0,255,150,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .btn-play {
+    background: #00ff99;
+  }
+
+  .btn-play svg, .btn-icon svg {
+    width: 14px;
+    height: 14px;
+    fill: #000;
+    stroke: none;
+  }
+
+  .btn-icon svg.outline {
+    fill: none;
+    stroke: #00ff99;
+    stroke-width: 2;
+  }
+
+  /* Loading bar bottom */
+  .loading-bar-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: #111;
+  }
+
+  .loading-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00cc77, #00ff99);
+    animation: load-fill 4s ease-in-out forwards;
+    box-shadow: 0 0 10px #00ff99;
+  }
+
+  @keyframes load-fill {
+    0% { width: 60%; }
+    100% { width: 100%; }
+  }
+
+  /* Loading text bottom right corner */
+  .loading-text {
+    position: absolute;
+    bottom: 8px;
+    right: 14px;
+    font-size: 12px;
+    color: #aaa;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .progress-circle {
+    width: 32px;
+    height: 32px;
+    position: relative;
+  }
+
+  .progress-circle svg {
+    transform: rotate(-90deg);
+  }
+
+  .progress-circle circle {
+    fill: none;
+    stroke: #333;
+    stroke-width: 3;
+  }
+
+  .progress-circle circle.fill {
+    stroke: #00ff99;
+    stroke-dasharray: 82;
+    stroke-dashoffset: 18;
+    stroke-linecap: round;
+    animation: progress-spin 4s linear forwards;
+  }
+
+  @keyframes progress-spin {
+    from { stroke-dashoffset: 60; }
+    to { stroke-dashoffset: 0; }
+  }
+
+  .progress-num {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 9px;
+    font-weight: bold;
+    color: #00ff99;
+    counter-reset: none;
+  }
+
+  /* Engine build info */
+  .engine-info {
+    position: absolute;
+    bottom: 20px;
+    right: 14px;
+    font-size: 10px;
+    color: #444;
+    font-family: monospace;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Background radial glow -->
+  <div class="bg-glow"></div>
+
+  <!-- FPS -->
+  <div class="fps">00fps</div>
+
+  <!-- Loading resources top left -->
+  <div class="loading-resources">
+    <div class="loading-dot"></div>
+    <span>جاري تحميل الموارد...</span>
+  </div>
+
+  <!-- Top right: store + avatar -->
+  <div class="top-right">
+    <div>
+      <div class="welcome-label">مرحباً بك في</div>
+      <div class="store-name">متجر</div>
+    </div>
+    <div class="avatar">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="18" fill="#1a5c38"/>
+        <text x="18" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#00ff99" font-family="Arial">ك</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Center notification card -->
+  <div class="card-wrapper">
+    <div class="notification-card">
+      <!-- Username -->
+      <div class="username-row">
+        <div class="user-avatar">
+          <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#1a5c38"/><text x="16" y="21" text-anchor="middle" font-size="13" font-weight="bold" fill="#00ff99" font-family="Arial">ك</text></svg>
+        </div>
+        <div class="username">@اسم سيرفرك</div>
+      </div>
+
+      <!-- Main message -->
+      <div class="card-text">سمعناكم، و V3 جاهزة!</div>
+
+      <!-- Action icons -->
+      <div class="actions-row">
+        <!-- Heart -->
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        </div>
+        <!-- Comment -->
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <!-- Bookmark -->
+        <div class="action-icon">
+          <svg viewBox="0 0 24 24"><polygon points="19 21 12 16 5 21 5 3 19 3 19 21"/></svg>
+        </div>
+        <!-- More dots -->
+        <div class="dots-icon">⋮</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom left RP -->
+  <div class="rp-reminder">تذكّر الاحترام أساس الـRP.II الممتع.</div>
+
+  <!-- Bottom center tip -->
+  <div class="tip-box">
+    <div class="tip-label">
+      <span>نصيحة اللعب</span>
+      <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#00ff99"/></svg>
+    </div>
+    <div class="tip-text">زور ورش التعديل للحصول على ترقية الأداء القصوى لسياراتك.</div>
+  </div>
+
+  <!-- Loading bar at very bottom -->
+  <div class="loading-bar-wrapper">
+    <div class="loading-bar-fill"></div>
+  </div>
+
+  <!-- Bottom right controls (above loading bar) -->
+  <div style="position:absolute; bottom:18px; right:14px; display:flex; align-items:center; gap:10px;">
+    <!-- Volume -->
+    <div style="display:flex; align-items:center; gap:6px;">
+      <span style="font-size:12px; color:#aaa;">100%</span>
+      <div style="width:80px; height:4px; background:#333; border-radius:2px;">
+        <div style="width:100%; height:100%; background:#00ff99; border-radius:2px;"></div>
+      </div>
+    </div>
+    <!-- Play button -->
+    <div class="btn-play btn-icon">
+      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3" fill="#000"/></svg>
+    </div>
+    <!-- X button -->
+    <div class="btn-icon">
+      <svg viewBox="0 0 24 24" class="outline"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <!-- Progress circle -->
+    <div class="progress-circle">
+      <svg width="32" height="32" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="13" stroke="#222" stroke-width="3" fill="none"/>
+        <circle cx="16" cy="16" r="13" class="fill" stroke="#00ff99" stroke-width="3" fill="none" stroke-dasharray="82" stroke-dashoffset="18" stroke-linecap="round"/>
+      </svg>
+      <div class="progress-num">78</div>
+    </div>
+  </div>
+
+  <!-- Loading text bottom right -->
+  <div style="position:absolute; bottom:6px; right:60px; font-size:11px; color:#666; font-family: monospace;">
+    Loading game (78%)
+  </div>
+
+  <!-- Engine build info very bottom right -->
+  <div style="position:absolute; bottom:6px; right:14px; font-size:9px; color:#333; font-family:monospace;">FiveM | rb3095 | Dev</div>
+
+</body>
+</html>
